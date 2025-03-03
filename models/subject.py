@@ -5,4 +5,4 @@ class Subject(db.Model):
     name = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text)
     
-    #chapters = db.relationship('Chapter', backref='subject', lazy=True)
+    chapters = db.relationship('Chapter', backref='subject', lazy=True)
