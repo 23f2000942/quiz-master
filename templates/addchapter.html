@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master</title>
+</head>
+<body>
+    <h1>New chapter for subject {{subject}}</h1>
+    <form method="POST">
+    <div class="form-group">
+        <label for="chaptername">chapter Name</label>
+        <input type="text" class="form-control" name="chaptername" placeholder="Enter chapter name">
+      </div>
+    <div class="form-group">
+        <label for="description">chapter Description</label>
+        <input type="text" class="form-control" name="description" placeholder="Enter chapter description">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-primary" onclick="location.href='{{ url_for('path', role='admin') }}'" >Return</button>
+        {{message}}
+    </form>
+    
+</body>
+</html>
