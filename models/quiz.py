@@ -11,7 +11,8 @@ class Quiz(db.Model):
     quizname=db.Column(db.String(150), nullable=False,unique=True)
     
     questions = db.relationship('Question', backref='quiz', lazy=True)
-    scores = db.relationship('Score', backref='quiz', lazy=True)
+    
+    
     @hybrid_property
     def noofquestions(self):
         return len(self.questions)

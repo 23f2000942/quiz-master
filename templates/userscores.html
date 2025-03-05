@@ -1,6 +1,71 @@
 {% extends "base.html" %}
-{% block title %}Dashboard (we will figure out user or admin later on){% endblock %}
+{% block title %}Welcome, {{user.name}} !{% endblock %}
 {% block content %}
-<p> welcome, {{username}}. this is your password {{password}} and i am big brother speaking</p>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{url_for('userdashboard',id=user.id)}}">Home</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+         
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('userscores',id=user.id)}}">Scores</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('usersummary',id=user.id)}}">Summary</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Logout</a>
+          </li>
+          
+          
+        </ul>
+        <form class="d-flex">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+<div class="container my-5">
+    <!-- Upcming Quizzes Section -->
+    <h3 class="mb-4 text-primary fw-bold">Past attempts</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Quiz ID</th>
+                    <th scope="col">Quiz Name</th>
+                    <th scope="col">Chapter</th>
+                   
+                    <th scope="col">Attempt Date</th>
+                    <th scope="col">Total Score</th>
+                    
+                  
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in scores %}
+              
+                <tr>
+                    <td>{{score[0]}}</td>
+                    <td>{{score[1]}}</td>
+                    <td>{{score[2]}}</td>
+                    <td>{{score[3]}}</td>
+                    <td>{{score[4]}}</td>
+                   
+                   
+                   
+                </tr>
+               
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+  
 
 {% endblock %}

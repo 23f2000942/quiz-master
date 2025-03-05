@@ -8,6 +8,7 @@ from models.question import Question
 from models.score import Score
 from datetime import datetime, date
 
+
 app = Flask(__name__)
 app.secret_key = 'aditi'
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -364,17 +365,33 @@ def deletequestion(id):
 
 @app.route("/dashboard/user/<int:id>", methods=["GET", "POST"])
 def userdashboard(id):
+    user=User.query.filter_by(id=id).first()
+    name=user.fullname
     return render_template(
         "userdashboard.html",
         quizzes=Quiz.query.filter(Quiz.quizdate >= date.today()).all(),
-        user=User.query.filter_by(id=id).first(),
-        id=id,
+        user=user,
+        id=id,name=name
     )
 
 
 @app.route("/dashboard/user/<int:id>/userscores", methods=["GET", "POST"])
 def userscores(id):
-    pass
+    user=User.query.filter_by(id=id).first()
+    scores = db.session.query(
+        Score.quizid,
+        Quiz.quizname,
+        Chapter.name,
+        Score.timestampofattempt,
+        Score.totalscored
+    ).join(
+        Quiz, Score.quizid == Quiz.id
+    ).join(
+        Chapter, Quiz.chapter_id == Chapter.id
+    ).filter(
+        Score.userid == id
+    ).all()
+    return render_template("userscores.html",user=user,scores=scores )
 
 
 @app.route("/dashboard/user/<int:id>/usersummary", methods=["GET", "POST"])
