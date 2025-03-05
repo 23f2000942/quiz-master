@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Quiz attempt!{% endblock %}
+{% block content %}
+<form method="POST">
+  <div>
+    <p>{{ question.questionstatement }}</p>
+    <p>{{ count }}/{{ total }}</p>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="selectedoption" value="option1">
+    <label class="form-check-label" for="option1">
+      {{ question.option1 }}
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="selectedoption" value="option2">
+    <label class="form-check-label" for="option2">
+      {{ question.option2 }}
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="selectedoption" value="option3">
+    <label class="form-check-label" for="option3">
+      {{ question.option3 }}
+    </label>
+  </div>
+  <div class="form-check">
+    <input class="form-check-input" type="radio" name="selectedoption" value="option4">
+    <label class="form-check-label" for="option4">
+      {{ question.option4 }}
+    </label>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="mt-3">
+    <button class="btn btn-primary" type="submit" name="action" value="next">Save and Next</button>
+    <button class="btn btn-danger" type="submit" name="action" value="submit">Submit Quiz</button>
+  </div>
+
+</form>
+{% endblock %}

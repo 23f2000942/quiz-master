@@ -1,4 +1,6 @@
+from sqlalchemy.ext.hybrid import hybrid_property
 from . import db
+
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -10,3 +12,6 @@ class Quiz(db.Model):
     
     questions = db.relationship('Question', backref='quiz', lazy=True)
     scores = db.relationship('Score', backref='quiz', lazy=True)
+    @hybrid_property
+    def noofquestions(self):
+        return len(self.questions)

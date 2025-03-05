@@ -1,0 +1,51 @@
+
+
+
+
+{% extends "base.html" %}
+{% block title %}View quiz {{quiz.quizname}}{% endblock %}
+{% block content %}
+
+<div class="container my-5">
+    <!-- View Quiz -->
+    <h3 class="mb-4 text-primary fw-bold">View Quiz</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+               <tr>
+                <th>ID</th>
+                <td>{{quiz.id}}</td>
+               </tr>
+               <tr>
+                <th>Subject</th>
+                <td>{{subject}}</td>
+               </tr>
+               <tr>
+                <th>Chapter</th>
+                <td>{{chapter}}</td>
+               </tr>
+               <tr>
+                <th>No. of Questions</th>
+                <td>{{quiz.noofquestions}}</td>
+               </tr>
+                <th>Scheduled date</th>
+                <td>{{quiz.quizdate}}</td>
+               </tr>
+               </tr>
+                <th>Scheduled duration</th>
+                <td>{{quiz.quizduration}}</td>
+               </tr>
+            
+               
+               
+            </tbody>
+        </table>
+        <button type="button" onclick="location.href='{{ url_for('userdashboard', id=id) }}'" class="btn btn-outline-primary btn-sm me-2">Return</button>
+
+
+    </div>
+
+
+  
+
+{% endblock %}

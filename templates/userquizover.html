@@ -1,0 +1,43 @@
+
+
+
+
+{% extends "base.html" %}
+{% block title %}Quiz Results{% endblock %}
+{% block content %}
+quizid=quizid,questionids=scores.keys(),scoreforeachquestion=scores.values()
+<div class="container my-5">
+    <!-- View results -->
+    <h3 class="mb-4 text-primary fw-bold">Results for quiz {{quiz.quizname}}</h3>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead>
+                <tr>
+                    <th>Question ID</th>
+                    <th>Question Statement</th>
+                    <th>Your score</th>
+                </tr>
+            </thead>
+            <tbody class="table-dark">
+                {% for item in data %}
+               <tr>
+                <td>{{item.id}} </td>
+               <td>{{item.statement}}</td>
+               <td>{{item.score}}</td>
+               </tr>
+               {% endfor %}
+            
+               
+               
+            </tbody>
+        </table>
+        <p>Results: {{yourscore}}/{{noofquestions}}</p>
+        <button type="button" onclick="location.href='{{ url_for('userdashboard', id=id) }}'" class="btn btn-outline-primary btn-sm me-2">Return</button>
+
+
+    </div>
+
+
+  
+
+{% endblock %}
