@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for,session
+from flask import Flask, render_template, request, redirect, url_for,session,jsonify
 from models import db
 from models.user import User
 from models.subject import Subject
@@ -433,7 +433,8 @@ def userstartquiz(id, quizid):
         questions = sorted(quiz.questions, key=lambda question: question.id)
         print(questions)
 
-        if quiz is None or quiz.questions[0] is None or nooquestions(quiz) == 0:
+        if (quiz is None) or (total==0) or (quiz.questions[0] is None):
+
             return redirect(url_for("path", role="user", id=id))
         print(quiz.questions)
         question = quiz.questions[0]
@@ -650,6 +651,34 @@ def usersearch(id):
         
         print(user.fullname)
         return render_template('usersearchresults.html', results=results, whattosearch=whattosearch,query=query,user=user)
+
+#API routes
+@app.route('/api/chapters', methods=['GET'])
+def get_chapters():
+    chapters = Chapter.query.all()
+    data=[]
+    for chapter in chapters:
+        data.append({'id': chapter.id, 'name': chapter.name,'description':chapter.description, 'subject_id': chapter.subject_id})
+
+    return jsonify(data)
+
+
+@app.route('/api/quizzes', methods=['GET'])
+def get_quizzes():
+    quizzes = Quiz.query.all()
+    data=[]
+    for quiz in quizzes:
+        data.append({'id': quiz.id, 'name': quiz.quizname,'date':str(quiz.quizdate), 'quizduration': str(quiz.quizduration), 'no.ofquestions': quiz.noofquestions, 'chapter_id': quiz.chapter_id})
+    return jsonify(data)
+
+
+@app.route('/api/scores', methods=['GET'])
+def get_scores():
+    scores = Score.query.all()
+    data=[]
+    for score in scores:
+        data.append({'id': score.id, 'quizid': score.quizid,'userid':score.userid, 'totalscored': score.totalscored, 'timestampofattempt': str(score.timestampofattempt)})
+    return jsonify(data)
 
 
 if __name__ == "__main__":
