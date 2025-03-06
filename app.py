@@ -8,7 +8,9 @@ from models.question import Question
 from models.score import Score
 from datetime import datetime, date
 from matplotlib import pyplot as plt
-from sqlalchemy import or_
+from sqlalchemy import or_, func
+import os
+import numpy as np
 
 
 app = Flask(__name__)
@@ -401,7 +403,138 @@ def userscores(id):
 
 @app.route("/dashboard/user/<int:id>/usersummary", methods=["GET", "POST"])
 def usersummary(id):
-    pass
+    user=User.query.filter_by(id=id).first()
+    attempts_per_subject = db.session.query(
+    Subject.name,
+    func.count(Score.id).label('attempt_count')
+).join(
+    Chapter, Subject.id == Chapter.subject_id
+).join(
+    Quiz, Chapter.id == Quiz.chapter_id
+).join(
+    Score, Quiz.id == Score.quizid
+).filter(
+    Score.userid == id
+).group_by(
+    Subject.name
+).all()
+    print(attempts_per_subject)
+    x,y=[],[]
+    for tu in attempts_per_subject:
+        x.append(tu[0])
+        y.append(tu[1])
+    plt.figure()
+    plt.bar(x,y)
+    plt.xlabel("Subject")
+    plt.ylabel("No. of Quizzes attempted")
+    userchartpath1 = os.path.join('static', f'userchart1{id}.png')
+    plt.savefig(userchartpath1)
+    plt.close()
+    day_wise_attempts = db.session.query(
+    func.date(Score.timestampofattempt).label('attempt_date'),
+    func.count(Score.id).label('attempt_count')
+).filter(
+    Score.userid == id
+).group_by(
+    func.date(Score.timestampofattempt)
+).order_by(
+    func.date(Score.timestampofattempt)
+).all()
+    print(day_wise_attempts)
+    days,data=[],[]
+    for tu in day_wise_attempts:
+        days.append(tu[0])
+        data.append(tu[1])
+    plt.figure()
+    plt.pie(data,labels=days)
+    userchartpath2 = os.path.join('static', f'userchart2{id}.png')
+    plt.savefig(userchartpath2)
+    plt.close()
+
+    
+    
+
+    return render_template("usersummary.html",user=user,chartname1=f'userchart1{id}.png',chartname2=f'userchart2{id}.png')
+@app.route("/dashboard/admin/adminsummary", methods=["GET", "POST"])
+def adminsummary():
+    subject_top_scores = db.session.query(
+    Subject.name.label('subject_name'),
+    func.max(Score.totalscored).label('top_score')
+).join(
+    Chapter, Subject.id == Chapter.subject_id
+).join(
+    Quiz, Chapter.id == Quiz.chapter_id
+).join(
+    Score, Quiz.id == Score.quizid
+).group_by(
+    Subject.name
+).all()
+    print(subject_top_scores)
+    subjects=[subject_top_score[0] for subject_top_score in subject_top_scores]
+    topscores=[subject_top_score[1] for subject_top_score in subject_top_scores]
+    plt.bar(subjects,topscores)
+    plt.xlabel("Subject")
+    plt.ylabel("Topscores")
+    adminchartpath1 = os.path.join('static', 'adminchart1.png')
+    plt.savefig(adminchartpath1)
+    plt.close()
+    print(adminchartpath1)
+    subject_wise_attempts = db.session.query(
+    Subject.name.label('subject_name'),
+    func.count(Score.id).label('total_attempts')
+).join(
+    Chapter, Subject.id == Chapter.subject_id
+).join(
+    Quiz, Chapter.id == Quiz.chapter_id
+).join(
+    Score, Quiz.id == Score.quizid
+).group_by(
+    Subject.name
+).all()
+    print(subject_wise_attempts)
+    subjects=[subject_wise_attempt[0] for subject_wise_attempt in subject_wise_attempts]
+    noofattempts=[subject_wise_attempt[1] for subject_wise_attempt in subject_wise_attempts]
+   #for radar plot
+    num_vars = len(subjects)
+
+
+    angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
+
+   
+    noofattempts += noofattempts[:1]
+    angles += angles[:1]
+
+    
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+  
+    ax.plot(angles, noofattempts, color='blue', linewidth=2)
+    ax.fill(angles, noofattempts, color='blue', alpha=0.25)
+
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(subjects)
+
+
+    ax.set_ylim(0, max(noofattempts))
+
+   
+    plt.title('Subjects vs Number of Attempts', y=1.1)
+    adminchartpath2 = os.path.join('static', 'adminchart2.png')
+    plt.show()
+    plt.savefig(adminchartpath2)
+    plt.close()
+
+    
+
+
+
+    return render_template("adminsummary.html",chartname1="adminchart1.png",chartname2="adminchart2.png")
+
+    
+
+
+
+
 
 
 @app.route("/dashboard/user/<int:id>/<int:quizid>/viewquiz", methods=["GET", "POST"])
