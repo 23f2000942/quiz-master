@@ -680,6 +680,7 @@ def get_scores():
         data.append({'id': score.id, 'quizid': score.quizid,'userid':score.userid, 'totalscored': score.totalscored, 'timestampofattempt': str(score.timestampofattempt)})
     return jsonify(data)
 
+#Created API endpoints for subjects, quizzes, and scores
 
 if __name__ == "__main__":
     app.run(debug=True)
