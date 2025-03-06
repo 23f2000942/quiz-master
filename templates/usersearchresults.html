@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Welcome, {{user.fullname}}!{% endblock %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{url_for('userdashboard',id=user.id)}}">Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+       
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('userscores',id=user.id)}}">Scores</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('usersummary',id=user.id)}}">Summary</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Logout</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{url_for('usersearch',id=user.id)}}">Search</a>
+        </li>
+        
+        
+      </ul>
+    </div>  
+  </nav>
+<div class="container my-5">
+  <h2>Search Results for "{{ query }}" in {{ whattosearch }}</h2>
+
+  {% if results %}
+    
+    {% if whattosearch=='quiz' %}
+      <table>  
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+            <tr>
+              <td>{{ result.id }}</td>
+              <td>{{ result.quizname }}</td>
+              <td>{{ result.quizdate }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% elif whattosearch=='subject' %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+            <tr>
+              <td>{{ result.id }}</td>
+              <td>{{ result.name }}</td>
+              <td>{{ result.description }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    
+    {% endif %}
+    
+  {% else %}
+    <p>No results found.</p>
+  {% endif %}
+  
+      
+</div>
+
+
+{% endblock %}

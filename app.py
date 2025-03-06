@@ -7,6 +7,8 @@ from models.quiz import Quiz
 from models.question import Question
 from models.score import Score
 from datetime import datetime, date
+from matplotlib import pyplot as plt
+from sqlalchemy import or_
 
 
 app = Flask(__name__)
@@ -14,6 +16,8 @@ app.secret_key = 'aditi'
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///quizmaster.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config['DEBUG'] = True
 
 db.init_app(app)
 
@@ -391,6 +395,7 @@ def userscores(id):
     ).filter(
         Score.userid == id
     ).all()
+    print(user.fullname)
     return render_template("userscores.html",user=user,scores=scores )
 
 
@@ -428,7 +433,7 @@ def userstartquiz(id, quizid):
         questions = sorted(quiz.questions, key=lambda question: question.id)
         print(questions)
 
-        if quiz is None or quiz.questions[0] is None:
+        if quiz is None or quiz.questions[0] is None or nooquestions(quiz) == 0:
             return redirect(url_for("path", role="user", id=id))
         print(quiz.questions)
         question = quiz.questions[0]
@@ -570,6 +575,81 @@ def reroute_to_admin():
 @app.route("/dashboard/admin/quizmanagement")
 def quizmanagement():
     return render_template("quizmanagement.html", quizzes=Quiz.query.all())
+
+@app.route("/dashboard/admin/search",methods=["GET","POST"])
+def adminsearch():
+    if request.method=="GET":
+        return render_template("adminsearch.html")
+    else:
+        whattosearch=request.form.get("whattosearch")
+        query=request.form.get("query")
+        if whattosearch == 'user':
+            results = User.query.filter(
+                or_(
+                    User.fullname.ilike(f"%{query}%"),
+                    User.email.ilike(f"%{query}%"),
+                    User.qualification.ilike(f"%{query}%"),
+                    User.role.ilike(f"%{query}%"),
+                    User.dob.ilike(f"%{query}%"),
+                )
+            ).all()
+        elif whattosearch == 'quiz':
+            results = Quiz.query.filter(or_
+            (Quiz.quizname.ilike(f"%{query}%"), 
+             Quiz.quizdate.ilike(f"%{query}%"),
+             Quiz.quizduration.ilike(f"%{query}%"))).all()
+        elif whattosearch == 'subject':
+            results = Subject.query.filter(
+                or_(
+                    Subject.name.ilike(f"%{query}%"),
+                    Subject.description.ilike(f"%{query}%")
+                )
+            ).all()
+        
+        elif whattosearch == 'question':
+                results = Question.query.filter(
+                or_(
+                    Question.questionstatementstatement.ilike(f"%{query}%"),
+                    Question.questionstatementtitle.ilike(f"%{query}%"),
+                    Question.option1.ilike(f"%{query}%"),
+                    Question.option2.ilike(f"%{query}%"),
+                    Question.option3.ilike(f"%{query}%"),
+                    Question.option4.ilike(f"%{query}%")
+                )
+            ).all()
+        else:
+            results = []
+        return render_template('adminsearchresults.html', results=results, whattosearch=whattosearch,query=query)
+
+@app.route("/dashboard/user/<int:id>/search",methods=["GET","POST"],endpoint="usersearch")
+def usersearch(id):
+    user=User.query.filter_by(id=id).first()
+    if request.method=="GET":
+        return render_template("usersearch.html",user=user)
+    else:
+        whattosearch=request.form.get("whattosearch")
+        query=request.form.get("query")
+        
+        if whattosearch == 'quiz':
+            results = Quiz.query.filter(or_
+            (Quiz.quizname.ilike(f"%{query}%"), 
+             Quiz.quizdate.ilike(f"%{query}%"),
+             Quiz.quizduration.ilike(f"%{query}%"))).all()
+        elif whattosearch == 'subject':
+            results = Subject.query.filter(
+                or_(
+                    Subject.name.ilike(f"%{query}%"),
+                    Subject.description.ilike(f"%{query}%")
+                )
+            ).all()
+        
+        
+        else:
+            results = []
+        
+        
+        print(user.fullname)
+        return render_template('usersearchresults.html', results=results, whattosearch=whattosearch,query=query,user=user)
 
 
 if __name__ == "__main__":
