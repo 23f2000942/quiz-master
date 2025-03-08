@@ -2,7 +2,7 @@ from . import db
 
 class Subject(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), nullable=False,unique=True)
+    name = db.Column(db.String(150), nullable=False, unique=True)
     description = db.Column(db.Text)
-    
-    chapters = db.relationship('Chapter', backref='subject', lazy=True)
+
+    chapters = db.relationship('Chapter', backref='subject', cascade="all, delete-orphan", lazy=True)

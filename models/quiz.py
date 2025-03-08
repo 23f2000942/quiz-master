@@ -10,7 +10,9 @@ class Quiz(db.Model):
     
     quizname=db.Column(db.String(150), nullable=False,unique=True)
     
-    questions = db.relationship('Question', backref='quiz', lazy=True)
+   
+    questions = db.relationship('Question', backref='quiz', cascade="all, delete-orphan", lazy=True)
+    scores = db.relationship('Score', backref='quiz', cascade="all, delete-orphan", lazy=True)
     
     
     @hybrid_property

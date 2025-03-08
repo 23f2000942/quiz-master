@@ -1,0 +1,132 @@
+apiVersion: 1.0.0
+swaggerVersion: "1.2"
+basePath: "/v1"
+resourcePath: /quizzes
+produces: 
+  - application/json
+
+apis: 
+  - path: "/chapters"
+    operations:
+      - method: GET
+        summary: Retrieve all chapters
+        notes: Returns a list of all chapters with their details.
+        type: ChapterList
+        nickname: getChapters
+        produces: 
+          - application/json
+        responseMessages: 
+          - code: 200
+            message: Successful response
+
+  - path: "/quizzes"
+    operations:
+      - method: GET
+        summary: Retrieve all quizzes
+        notes: Returns a list of available quizzes with metadata.
+        type: QuizList
+        nickname: getQuizzes
+        produces: 
+          - application/json
+        responseMessages: 
+          - code: 200
+            message: Successful response
+
+  - path: "/scores"
+    operations:
+      - method: GET
+        summary: Retrieve all scores
+        notes: Returns scores of users for different quizzes.
+        type: ScoreList
+        nickname: getScores
+        produces: 
+          - application/json
+        responseMessages: 
+          - code: 200
+            message: Successful response
+
+models: 
+  Chapter:
+    id: Chapter
+    title: Chapter
+    type: object
+    description: "A chapter within a subject."
+    required:
+      - id
+      - name
+      - subject_id
+    properties: 
+      id: 
+        type: integer
+        description: "Unique ID for the chapter"
+      name:
+        type: string
+        description: "Chapter title"
+      description:
+        type: string
+        description: "Brief description of the chapter"
+      subject_id:
+        type: integer
+        description: "ID of the related subject"
+
+  Quiz:
+    id: Quiz
+    title: Quiz
+    type: object
+    description: "A quiz associated with a chapter."
+    required:
+      - id
+      - name
+      - quizdate
+      - quizduration
+      - no_of_questions
+      - chapter_id
+    properties: 
+      id: 
+        type: integer
+        description: "Unique ID for the quiz"
+      name:
+        type: string
+        description: "Quiz title"
+      quizdate:
+        type: string
+        format: date
+        description: "Date of the quiz"
+      quizduration:
+        type: string
+        description: "Duration of the quiz"
+      no_of_questions:
+        type: integer
+        description: "Number of questions in the quiz"
+      chapter_id:
+        type: integer
+        description: "ID of the associated chapter"
+
+  Score:
+    id: Score
+    title: Score
+    type: object
+    description: "A record of a user's score on a quiz."
+    required: 
+      - id
+      - quizid
+      - userid
+      - totalscored
+      - timestampofattempt
+    properties: 
+      id: 
+        type: integer
+        description: "Unique ID for the score record"
+      quizid:
+        type: integer
+        description: "ID of the quiz"
+      userid:
+        type: integer
+        description: "ID of the user"
+      totalscored:
+        type: integer
+        description: "Total score obtained"
+      timestampofattempt:
+        type: string
+        format: date-time
+        description: "Time when the quiz was attempted"

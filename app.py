@@ -268,9 +268,9 @@ def addquiz():
 
         chapter_id = request.form.get("chapterid")
         quizname = request.form.get("quizname")
-        quizdate = request.form.get("quizdate")
+        quizdate = request.form.get("quizdate") or "2026-01-01"
         quizdate_format = datetime.strptime(quizdate, "%Y-%m-%d").date()
-        quizduration = request.form.get("quizduration")
+        quizduration = request.form.get("quizduration") or "00:10"
         quizduration_format = datetime.strptime(quizduration, "%H:%M").time()
         chapter = Chapter.query.filter_by(id=chapter_id).first()
         if chapter is None:
@@ -881,7 +881,6 @@ def get_scores():
         data.append({'id': score.id, 'quizid': score.quizid,'userid':score.userid, 'totalscored': score.totalscored, 'timestampofattempt': str(score.timestampofattempt)})
     return jsonify(data)
 
-#Created API endpoints for subjects, quizzes, and scores
 
 if __name__ == "__main__":
     app.run(debug=True)

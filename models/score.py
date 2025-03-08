@@ -7,5 +7,4 @@ class Score(db.Model):
     userid = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     timestampofattempt = db.Column(db.DateTime, default=datetime)
     totalscored = db.Column(db.Float)
-    quiz = db.relationship('Quiz', backref='scores')
-    user = db.relationship('User', backref='scores')
+   

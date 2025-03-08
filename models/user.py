@@ -10,3 +10,4 @@ class User(db.Model,UserMixin):
     qualification = db.Column(db.String(150))
     dob = db.Column(db.Date)
     role=db.Column(db.String(150),nullable=False,default="user")
+    scores = db.relationship('Score', backref='user', cascade="all, delete-orphan", lazy=True)
