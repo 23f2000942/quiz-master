@@ -618,7 +618,8 @@ def userviewquiz(id, quizid):
 
 @app.route("/dashboard/user/<int:id>/<int:quizid>/startquiz", methods=["GET", "POST"])
 def userstartquiz(id, quizid):
-    count = 0
+    
+    count,displaycount = 0,0
     session["scores"]={}
 
     if request.method == "GET":
@@ -639,7 +640,7 @@ def userstartquiz(id, quizid):
                 id=id,
                 quizid=quizid,
                 questionid=questionid,
-                count=count,
+                count=displaycount,
                 total=total,
             )
         )
@@ -651,9 +652,10 @@ def userstartquiz(id, quizid):
 )
 
 def displayquestion(id, quizid, questionid, count, total):
+    displaycount=count+1
     if request.method == "GET":  # display the question
         question = Question.query.filter_by(id=questionid).first()
-        displaycount=count+1
+        
         return render_template(
             "usershowquestion.html", question=question, count=displaycount, total=total
         )
@@ -677,7 +679,7 @@ def displayquestion(id, quizid, questionid, count, total):
             quiz = Quiz.query.filter_by(id=quizid).first()
             questions = sorted(quiz.questions, key=lambda question: question.id)
             count += 1
-            displaycount=count+1
+            
             questionid = questions[count].id
 
             return redirect(
