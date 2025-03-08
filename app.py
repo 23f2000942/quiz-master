@@ -11,6 +11,9 @@ from matplotlib import pyplot as plt
 from sqlalchemy import or_, func
 import os
 import numpy as np
+from flask_login import LoginManager, login_user, logout_user, login_required, UserMixin, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 
 app = Flask(__name__)
@@ -18,7 +21,6 @@ app.secret_key = 'aditi'
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///quizmaster.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 app.config['DEBUG'] = True
 
 db.init_app(app)
@@ -28,7 +30,7 @@ with app.app_context():
     if not User.query.filter_by(email="admin@admin.com").first():
         admin = User(
             email="admin@admin.com",
-            password="admin",
+            password=generate_password_hash("admin"),
             fullname="admin",
             role="admin",
             qualification="admin",
@@ -36,8 +38,17 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
 
-@app.route("/", methods=["GET", "POST"])
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         return render_template("register.html")
@@ -48,9 +59,10 @@ def register():
                 "register.html",
                 message="Invalid username. Choose a different username.",
             )
-        password = request.form.get("password")
+        password = generate_password_hash(request.form.get("password"))
         fullname = request.form.get("fullname")
         qualification = request.form.get("qualification")
+
 
         dob = request.form.get("dob")
         if dob is None or dob == "":
@@ -80,7 +92,9 @@ def register():
         return redirect(url_for("path", role="user", id=user.id))
 
 
+
 @app.route("/login", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
         return render_template("login.html")
@@ -94,23 +108,29 @@ def login():
                 message="Oh no! Looks like you aren't registered with us. Pls register first.",
             )
         else:
-            if check.password != password:
+            if not check_password_hash(check.password, password):
                 return render_template("login.html", message="Incorrect Password.")
             else:
+                login_user(check)
                 print(f"username:{username},password:{password}")
                 if username.lower() == "admin@admin.com":
                     return redirect(url_for("path", role="admin", id=1))
                 else:
                     print(
-                        f"user id is \n\n{User.query.filter_by(email=username).first().id}\n\n"
+                        f"user id is \n\n{check.id}\n\n"
                     )
                     return redirect(
                         url_for(
                             "path",
                             role="user",
-                            id=User.query.filter_by(email=username).first().id,
+                            id=check.id
                         )
                     )
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 
 @app.route("/addsubject", methods=["GET", "POST"])
@@ -142,18 +162,27 @@ def deletesubject(id):
 
 @app.route("/editsubject/<int:id>", methods=["GET", "POST"])
 def editsubject(id):
+    subject = Subject.query.filter_by(id=id).first()
     if request.method == "GET":
-        return render_template("editsubject.html")
+        return render_template("editsubject.html",subject=subject)
     else:
 
-        subject = Subject.query.filter_by(id=id).first()
         if subject is None:
             print("Subject not found")
             return redirect(url_for("path", role="admin", id=1))
-        subject.name = request.form.get("subjectname")
-        subject.description = request.form.get("description")
+        subjectname = request.form.get("subjectname")
+        subjectdescription = request.form.get("description")
+
+        if not subjectname:
+            subjectname=subject.name
+        if not subjectdescription:
+            subjectdescription=subject.description
+
+        subject.name=subjectname
+        subject.description=subjectdescription
+        
         db.session.commit()
-        print(f"subject:{subject.name} edited successfully")
+        print(f"subject:{subject.name} descirption:{subject.description} edited successfully")
         return redirect(url_for("path", role="admin", id=1))
 
 
@@ -205,16 +234,27 @@ def deletechapter(id):
 
 @app.route("/editchapter/<int:id>", methods=["GET", "POST"])
 def editchapter(id):
+    chapter = Chapter.query.filter_by(id=id).first()
     if request.method == "GET":
-        return render_template("editchapter.html")
+        return render_template("editchapter.html",chapter=chapter)
     else:
 
-        chapter = Chapter.query.filter_by(id=id).first()
+        
         if chapter is None:
             print("chapter not found")
             return redirect(url_for("path", role="admin", id=1))
-        chapter.name = request.form.get("chaptername")
-        chapter.description = request.form.get("description")
+        chaptername = request.form.get("chaptername")
+        chapterdescription = request.form.get("description")
+
+        if not chaptername:
+            chaptername=chapter.name
+        if not chapterdescription:
+            chapterdescription=chapter.description
+
+        chapter.name=chaptername
+        chapter.description=chapterdescription
+        
+       
         db.session.commit()
         print(f"chapter:{chapter.name} edited successfully")
         return redirect(url_for("path", role="admin", id=1))
@@ -250,20 +290,33 @@ def addquiz():
 
 @app.route("/editquiz/<int:id>", methods=["GET", "POST"])
 def editquiz(id):
+    quiz = Quiz.query.filter_by(id=id).first()
     if request.method == "GET":
-        return render_template("editquiz.html")
+        return render_template("editquiz.html",quiz=quiz)
     else:
 
-        quiz = Quiz.query.filter_by(id=id).first()
+        
         if quiz is None:
             print("quiz not found")
             return redirect(url_for("path", role="admin", id=1))
-        chapter_id = request.form.get("chapterid")
-        quizname = request.form.get("quizname")
-        quizdate = request.form.get("quizdate")
-        quizdate_format = datetime.strptime(quizdate, "%Y-%m-%d").date()
-        quizduration = request.form.get("quizduration")
-        quizduration_format = datetime.strptime(quizduration, "%H:%M").time()
+        
+
+
+        chapter_id = request.form.get("chapterid") or quiz.chapter_id
+        quizname = request.form.get("quizname") or quiz.quizname
+        quizdate = request.form.get("quizdate") 
+        if quizdate:
+            quizdate_format = datetime.strptime(quizdate, "%Y-%m-%d").date() 
+        else: 
+            quizdate_format = quiz.quizdate
+        quizduration = request.form.get("quizduration") 
+        if quizduration:
+    
+            quizduration_format = datetime.strptime(quizduration, "%H:%M").time() 
+        else:
+            quizduration_format =quiz.quizduration
+
+        #validate if new chapter_id is correct
         chapter = Chapter.query.filter_by(id=chapter_id).first()
         if chapter is None:
             print("chapter not found")
@@ -292,11 +345,14 @@ def deletequiz(id):
 
 
 @app.route("/addquestion/<int:quizid>", methods=["GET", "POST"])
+
 def addquestion(quizid):
+    chapterid=Quiz.query.filter_by(id=quizid).first().chapter_id
+    chapter=Chapter.query.filter_by(id=chapterid).first()
     if request.method == "GET":
-        return render_template("addquestion.html")
+        return render_template("addquestion.html",chapter=chapter)
     else:
-        chapterid = request.form.get("chapterid")  # whats the point of this
+        
         questiontitle = request.form.get("questiontitle")
         questionstatement = request.form.get("questionstatement")
         option1 = request.form.get("option1")
@@ -328,19 +384,21 @@ def addquestion(quizid):
 
 @app.route("/editquestion/<int:id>", methods=["GET", "POST"])
 def editquestion(id):
+    question = Question.query.filter_by(id=id).first()
     if request.method == "GET":
-        return render_template("editquestion.html")
+        return render_template("editquestion.html",question=question)
     else:
 
-        chapterid = request.form.get("chapterid")  # whats the point of this
-        questiontitle = request.form.get("questiontitle")
-        questionstatement = request.form.get("questionstatement")
-        option1 = request.form.get("option1")
-        option2 = request.form.get("option2")
-        option3 = request.form.get("option3")
-        option4 = request.form.get("option4")
+        
+        questiontitle = request.form.get("questiontitle") or question.questiontitle
+        questionstatement = request.form.get("questionstatement") or question.questionstatement
+        option1 = request.form.get("option1") or question.option1
+        option2 = request.form.get("option2") or question.option2
+        option3 = request.form.get("option3") or question.option3
+        option4 = request.form.get("option4") or question.option4
+        correctoption = request.form.get("correctoption") or question.correctoption
         correctoption = request.form.get("correctoption")
-        question = Question.query.filter_by(id=id).first()
+        
         if question is None:
             print("question not found")
             return redirect(url_for("quizmanagement"))
@@ -514,7 +572,8 @@ def adminsummary():
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(subjects)
 
-
+    if(not noofattempts):
+        return redirect(url_for('path',role='admin',id=1))
     ax.set_ylim(0, max(noofattempts))
 
    
@@ -539,16 +598,18 @@ def adminsummary():
 
 @app.route("/dashboard/user/<int:id>/<int:quizid>/viewquiz", methods=["GET", "POST"])
 def userviewquiz(id, quizid):
+    user=User.query.filter_by(id=id).first()
     quiz = Quiz.query.filter_by(id=quizid).first()
     chapter = Chapter.query.filter_by(id=quiz.chapter_id).first()
     subject = Subject.query.filter_by(id=chapter.subject_id).first()
     print(quiz, chapter, subject)
     return render_template(
         "userviewquiz.html",
-        id=id,
+        
         quiz=quiz,
         chapter=chapter.name,
         subject=subject.name,
+        user=user
     )
 
 
@@ -592,8 +653,9 @@ def userstartquiz(id, quizid):
 def displayquestion(id, quizid, questionid, count, total):
     if request.method == "GET":  # display the question
         question = Question.query.filter_by(id=questionid).first()
+        displaycount=count+1
         return render_template(
-            "usershowquestion.html", question=question, count=count, total=total
+            "usershowquestion.html", question=question, count=displaycount, total=total
         )
 
     else:  # process the answer (POST)
@@ -615,6 +677,7 @@ def displayquestion(id, quizid, questionid, count, total):
             quiz = Quiz.query.filter_by(id=quizid).first()
             questions = sorted(quiz.questions, key=lambda question: question.id)
             count += 1
+            displaycount=count+1
             questionid = questions[count].id
 
             return redirect(
@@ -623,7 +686,7 @@ def displayquestion(id, quizid, questionid, count, total):
                     id=id,
                     quizid=quizid,
                     questionid=questionid,
-                    count=count,
+                    count=displaycount,
                     total=total,
                 )
             )
@@ -656,8 +719,11 @@ def displayquestion(id, quizid, questionid, count, total):
     methods=["GET", "POST"],
 )
 def userresults(quizid, scoreid):
+
     quiz = Quiz.query.filter_by(id=quizid).first()
     userscore = Score.query.filter_by(id=scoreid).first()
+    userid = userscore.userid
+    user=User.query.filter_by(id=userid).first()
 
     if not quiz or not userscore: 
         return "Invalid quiz or score", 404
@@ -680,7 +746,7 @@ def userresults(quizid, scoreid):
                 'score': scores[str(question_id)]
             })
 
-    userid = userscore.userid
+    
 
     return render_template(
         "userquizover.html",
@@ -688,7 +754,7 @@ def userresults(quizid, scoreid):
         data=sorted(data, key=lambda x: x['id']),
         yourscore=yourscore,
         noofquestions=noofquestions,
-        id=userid
+        user=user
     )
 @app.route("/dashboard/<string:role>/<int:id>")
 def path(role, id):

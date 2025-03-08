@@ -1,51 +1,63 @@
-
-
-
-
 {% extends "base.html" %}
-{% block title %}View quiz {{quiz.quizname}}{% endblock %}
+
 {% block content %}
-
-<div class="container my-5">
-    <!-- View Quiz -->
-    <h3 class="mb-4 text-primary fw-bold">View Quiz</h3>
-    <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered">
-            <thead class="table-dark">
-               <tr>
-                <th>ID</th>
-                <td>{{quiz.id}}</td>
-               </tr>
-               <tr>
-                <th>Subject</th>
-                <td>{{subject}}</td>
-               </tr>
-               <tr>
-                <th>Chapter</th>
-                <td>{{chapter}}</td>
-               </tr>
-               <tr>
-                <th>No. of Questions</th>
-                <td>{{quiz.noofquestions}}</td>
-               </tr>
-                <th>Scheduled date</th>
-                <td>{{quiz.quizdate}}</td>
-               </tr>
-               </tr>
-                <th>Scheduled duration</th>
-                <td>{{quiz.quizduration}}</td>
-               </tr>
-            
-               
-               
-            </tbody>
-        </table>
-        <button type="button" onclick="location.href='{{ url_for('userdashboard', id=id) }}'" class="btn btn-outline-primary btn-sm me-2">Return</button>
-
-
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('userdashboard', id=user.id) }}">Quiz Master</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('userdashboard', id=user.id) }}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('userscores', id=user.id) }}">Scores</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('usersummary', id=user.id) }}">Summary</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('usersearch', id=user.id) }}">Search</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+        <span class="navbar-text ms-auto">Welcome, {{ user.fullname }}!</span>
+      </div>
     </div>
+  </nav>
 
 
+
+
+<!-- View Quiz Content -->
+<div class="container my-5">
+  <h3 class="mb-4 text-primary fw-bold">View Quiz</h3>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered">
+      <tbody>
+        <tr>
+          <th scope="row">ID</th>
+          <td>{{ quiz.id }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Subject</th>
+          <td>{{ subject }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Chapter</th>
+          <td>{{ chapter }}</td>
+        </tr>
+        <tr>
+          <th scope="row">No. of Questions</th>
+          <td>{{ quiz.noofquestions }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Scheduled Date</th>
+          <td>{{ quiz.quizdate }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Scheduled Duration</th>
+          <td>{{ quiz.quizduration }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" onclick="location.href='{{ url_for('userdashboard', id=user.id) }}'" class="btn btn-outline-primary btn-sm mt-3">Return</button>
+  </div>
+</div>
   
 
 {% endblock %}

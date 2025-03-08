@@ -1,52 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Welcome, {{user.fullname}}!{% endblock %}
+
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{url_for('userdashboard',id=user.id)}}">Home</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="{{ url_for('userdashboard', id=user.id) }}">Quiz Master</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <div class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-         
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('userscores',id=user.id)}}">Scores</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('usersummary',id=user.id)}}">Summary</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Logout</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Search</a>
-          </li>
-          
-          
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('userdashboard', id=user.id) }}">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('userscores', id=user.id) }}">Scores</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('usersummary', id=user.id) }}">Summary</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('usersearch', id=user.id) }}">Search</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
-      </div>  </nav>
-      <div class="container my-5">
-        <form method="POST">
-            <div class="col-auto my-1">
-                <label class="mr-sm-2" for="whattosearch">Search for</label>
-                <select class="custom-select mr-sm-2" name="whattosearch">
-                  <option selected>Choose...</option>
-                  <option value="subject">Subjects</option>
-                  
-                  <option value="quiz">Quizzes</option>
-                  
-              
-                </select>
-              </div>
-              <div class="col-auto my-1">
-              <input type="text" name="query" placeholder="Search term">
-              </div>
-              <div class="col-auto my-1">
-              <button type="submit">Search</button>
-            </div>
-    
-          </form>
-          
+        <span class="navbar-text ms-auto">Welcome, {{ user.fullname }}!</span>
+      </div>
     </div>
+  </nav>
+  
+
+  <div class="container my-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Search</h5>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="whattosearch" class="form-label">Search for</label>
+            <select class="form-select" name="whattosearch">
+              <option selected disabled>Choose...</option>
+              <option value="subject">Subjects</option>
+              <option value="quiz">Quizzes</option>
+            </select>
+          </div>
+  
+          <div class="mb-3">
+            <label for="query" class="form-label">Search term</label>
+            <input type="text" class="form-control" name="query" placeholder="Enter search term">
+          </div>
+  
+          <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
     {% endblock %}
